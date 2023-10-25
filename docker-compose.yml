@@ -1,0 +1,37 @@
+services:
+  client:
+    container_name: paint-client
+    build: ./client
+    volumes:
+      - build-client:/usr/src/app/dist
+    restart: unless-stopped
+    depends_on:
+      - server
+
+  server:
+    container_name: paint-server
+    build: ./server
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: paint-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - build-client:/usr/share/nginx/html
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - ../../etc/letsencrypt:/etc/letsencrypt
+
+    restart: unless-stopped
+    depends_on:
+      - server
+      - client
+
+volumes:
+  build-client:
+
+
